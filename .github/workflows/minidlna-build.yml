@@ -59,12 +59,196 @@ jobs:
           # explicitly selecting the package targets for this isolated build.
           echo 'CONFIG_PACKAGE_minidlna=m' >> .config
           echo 'CONFIG_PACKAGE_libffmpeg=m' >> .config
+          # libffmpeg's default feature set links these optional libraries.
+          # Select their APKs explicitly because package targets are added
+          # after defconfig in this isolated build.
+          echo 'CONFIG_PACKAGE_libdrm=m' >> .config
+          echo 'CONFIG_PACKAGE_libopus=m' >> .config
+          echo 'CONFIG_PACKAGE_lame-lib=m' >> .config
           echo "===== TARGET ====="
           grep -E '^(CONFIG_TARGET_|CONFIG_ARCH=)' .config | head -30
           echo "===== SELECTED PACKAGES ====="
-          grep -E '^CONFIG_PACKAGE_(minidlna|libffmpeg)=' .config
-          grep -q '^CONFIG_PACKAGE_minidlna=m$' .config
-          grep -q '^CONFIG_PACKAGE_libffmpeg=m$' .config
+          grep -E '^CONFIG_PACKAGE_(minidlna|libffmpeg|libdrm|libopus|lame-lib)=' .config
+          grep -q '^CONFIG_PACKAGE_minidlna=m          grep -q '^CONFIG_TARGET_qualcommbe_ipq95xx=y$' .config
+
+      - name: Build host tools and target toolchain
+        run: |
+          cd owrt
+          make -j2 tools/install toolchain/install
+
+      - name: Build target kernel and modules
+        run: |
+          cd owrt
+          # target/linux/prepare alone does not create the kernel .config
+          # required by selected kernel-module packages in this baseline.
+          make -j2 target/linux/compile V=s
+
+      - name: Build MiniDLNA and its dependencies
+        run: |
+          cd owrt
+          make -j2 package/feeds/packages/minidlna/compile V=s
+
+      - name: Create package index and checksums
+        run: |
+          cd owrt
+          make package/index
+          cd bin/packages/aarch64_cortex-a73/packages
+          sha256sum *.apk > SHA256SUMS
+          ls -lh
+
+      - name: Upload unsigned package set for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: minidlna-aarch64_cortex-a73-unsigned
+          path: |
+            owrt/bin/packages/aarch64_cortex-a73/packages/
+          if-no-files-found: error
+          retention-days: 14
+ .config
+          grep -q '^CONFIG_PACKAGE_libffmpeg=m          grep -q '^CONFIG_TARGET_qualcommbe_ipq95xx=y$' .config
+
+      - name: Build host tools and target toolchain
+        run: |
+          cd owrt
+          make -j2 tools/install toolchain/install
+
+      - name: Build target kernel and modules
+        run: |
+          cd owrt
+          # target/linux/prepare alone does not create the kernel .config
+          # required by selected kernel-module packages in this baseline.
+          make -j2 target/linux/compile V=s
+
+      - name: Build MiniDLNA and its dependencies
+        run: |
+          cd owrt
+          make -j2 package/feeds/packages/minidlna/compile V=s
+
+      - name: Create package index and checksums
+        run: |
+          cd owrt
+          make package/index
+          cd bin/packages/aarch64_cortex-a73/packages
+          sha256sum *.apk > SHA256SUMS
+          ls -lh
+
+      - name: Upload unsigned package set for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: minidlna-aarch64_cortex-a73-unsigned
+          path: |
+            owrt/bin/packages/aarch64_cortex-a73/packages/
+          if-no-files-found: error
+          retention-days: 14
+ .config
+          grep -q '^CONFIG_PACKAGE_libdrm=m          grep -q '^CONFIG_TARGET_qualcommbe_ipq95xx=y$' .config
+
+      - name: Build host tools and target toolchain
+        run: |
+          cd owrt
+          make -j2 tools/install toolchain/install
+
+      - name: Build target kernel and modules
+        run: |
+          cd owrt
+          # target/linux/prepare alone does not create the kernel .config
+          # required by selected kernel-module packages in this baseline.
+          make -j2 target/linux/compile V=s
+
+      - name: Build MiniDLNA and its dependencies
+        run: |
+          cd owrt
+          make -j2 package/feeds/packages/minidlna/compile V=s
+
+      - name: Create package index and checksums
+        run: |
+          cd owrt
+          make package/index
+          cd bin/packages/aarch64_cortex-a73/packages
+          sha256sum *.apk > SHA256SUMS
+          ls -lh
+
+      - name: Upload unsigned package set for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: minidlna-aarch64_cortex-a73-unsigned
+          path: |
+            owrt/bin/packages/aarch64_cortex-a73/packages/
+          if-no-files-found: error
+          retention-days: 14
+ .config
+          grep -q '^CONFIG_PACKAGE_libopus=m          grep -q '^CONFIG_TARGET_qualcommbe_ipq95xx=y$' .config
+
+      - name: Build host tools and target toolchain
+        run: |
+          cd owrt
+          make -j2 tools/install toolchain/install
+
+      - name: Build target kernel and modules
+        run: |
+          cd owrt
+          # target/linux/prepare alone does not create the kernel .config
+          # required by selected kernel-module packages in this baseline.
+          make -j2 target/linux/compile V=s
+
+      - name: Build MiniDLNA and its dependencies
+        run: |
+          cd owrt
+          make -j2 package/feeds/packages/minidlna/compile V=s
+
+      - name: Create package index and checksums
+        run: |
+          cd owrt
+          make package/index
+          cd bin/packages/aarch64_cortex-a73/packages
+          sha256sum *.apk > SHA256SUMS
+          ls -lh
+
+      - name: Upload unsigned package set for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: minidlna-aarch64_cortex-a73-unsigned
+          path: |
+            owrt/bin/packages/aarch64_cortex-a73/packages/
+          if-no-files-found: error
+          retention-days: 14
+ .config
+          grep -q '^CONFIG_PACKAGE_lame-lib=m          grep -q '^CONFIG_TARGET_qualcommbe_ipq95xx=y$' .config
+
+      - name: Build host tools and target toolchain
+        run: |
+          cd owrt
+          make -j2 tools/install toolchain/install
+
+      - name: Build target kernel and modules
+        run: |
+          cd owrt
+          # target/linux/prepare alone does not create the kernel .config
+          # required by selected kernel-module packages in this baseline.
+          make -j2 target/linux/compile V=s
+
+      - name: Build MiniDLNA and its dependencies
+        run: |
+          cd owrt
+          make -j2 package/feeds/packages/minidlna/compile V=s
+
+      - name: Create package index and checksums
+        run: |
+          cd owrt
+          make package/index
+          cd bin/packages/aarch64_cortex-a73/packages
+          sha256sum *.apk > SHA256SUMS
+          ls -lh
+
+      - name: Upload unsigned package set for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: minidlna-aarch64_cortex-a73-unsigned
+          path: |
+            owrt/bin/packages/aarch64_cortex-a73/packages/
+          if-no-files-found: error
+          retention-days: 14
+ .config
           grep -q '^CONFIG_TARGET_qualcommbe_ipq95xx=y$' .config
 
       - name: Build host tools and target toolchain
