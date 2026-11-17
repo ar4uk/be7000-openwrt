@@ -54,14 +54,17 @@ jobs:
         run: |
           cd owrt
           cp "$GITHUB_WORKSPACE/config.buildinfo" .config
+          make defconfig
+          # Set these after defconfig: preserve the exact BE7000 baseline while
+          # explicitly selecting the package targets for this isolated build.
           echo 'CONFIG_PACKAGE_minidlna=m' >> .config
           echo 'CONFIG_PACKAGE_libffmpeg=m' >> .config
-          make defconfig
           echo "===== TARGET ====="
           grep -E '^(CONFIG_TARGET_|CONFIG_ARCH=)' .config | head -30
-          echo "===== MINIDLNA CONFIG ====="
-          grep -E '^(CONFIG_PACKAGE_(minidlna|libffmpeg|libffmpeg-audio-dec)=|# CONFIG_PACKAGE_(minidlna|libffmpeg|libffmpeg-audio-dec) is not set)' .config || true
+          echo "===== SELECTED PACKAGES ====="
+          grep -E '^CONFIG_PACKAGE_(minidlna|libffmpeg)=' .config
           grep -q '^CONFIG_PACKAGE_minidlna=m$' .config
+          grep -q '^CONFIG_PACKAGE_libffmpeg=m$' .config
           grep -q '^CONFIG_TARGET_qualcommbe_ipq95xx=y$' .config
 
       - name: Build host tools and target toolchain
