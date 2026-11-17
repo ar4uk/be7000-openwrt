@@ -72,12 +72,12 @@ jobs:
           cd owrt
           make -j2 tools/install toolchain/install
 
-      - name: Prepare target kernel configuration
+      - name: Build target kernel and modules
         run: |
           cd owrt
-          # Some selected base packages require the prepared kernel .config,
-          # even though this workflow only produces userspace package APKs.
-          make -j2 target/linux/prepare V=s
+          # target/linux/prepare alone does not create the kernel .config
+          # required by selected kernel-module packages in this baseline.
+          make -j2 target/linux/compile V=s
 
       - name: Build MiniDLNA and its dependencies
         run: |
