@@ -50,27 +50,27 @@ jobs:
           ./scripts/feeds update packages
           ./scripts/feeds install minidlna
 
-      - name: Patch MiniDLNA for current FFmpeg API
+      - name: Add MiniDLNA FFmpeg 7 compatibility patch
         run: |
-          cd owrt/feeds/packages/multimedia/minidlna
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("libav.h")
-          s = p.read_text()
-          old = "#define lav_channels(s) s->codecpar->channels"
-          new = """#if LIBAVUTIL_VERSION_INT >= ((57<<16)+(28<<8)+100)
-          #define lav_channels(s) s->codecpar->ch_layout.nb_channels
-          #else
-          #define lav_channels(s) s->codecpar->channels
-          #endif"""
-          if "HAVE_CH_LAYOUT" not in s:
-              if s.count(old) != 1:
-                  raise SystemExit("Expected MiniDLNA libav.h channel macro not found exactly once")
-              s = s.replace(old, new)
-              p.write_text(s)
-          if "ch_layout.nb_channels" not in s:
-              raise SystemExit("FFmpeg channel-layout compatibility patch was not applied")
-          print("MiniDLNA FFmpeg channel-layout compatibility patch is present")
+          mkdir -p owrt/feeds/packages/multimedia/minidlna/patches
+          cat > owrt/feeds/packages/multimedia/minidlna/patches/999-ffmpeg7-compat.patch <<'PATCH'
+--- a/libav.h
++++ b/libav.h
+@@ -174,7 +174,11 @@ lav_get_interlaced(AVStream *s)
+ #define lav_codec_tag(s) s->codecpar->codec_tag
+ #define lav_sample_rate(s) s->codecpar->sample_rate
+ #define lav_bit_rate(s) s->codecpar->bit_rate
++#if LIBAVUTIL_VERSION_INT >= ((57<<16)+(28<<8)+100)
++#define lav_channels(s) s->codecpar->ch_layout.nb_channels
++#else
+ #define lav_channels(s) s->codecpar->channels
++#endif
+ #define lav_width(s) s->codecpar->width
+ #define lav_height(s) s->codecpar->height
+ #define lav_profile(s) s->codecpar->profile
+PATCH
+          test -s owrt/feeds/packages/multimedia/minidlna/patches/999-ffmpeg7-compat.patch
+          echo "FFmpeg 7 compatibility patch added to the OpenWrt package patch series"
 
       - name: Configure the BE7000 package target
         run: |
